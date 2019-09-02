@@ -200,16 +200,52 @@ public class puyoGenerate : MonoBehaviour
             float p1y = pn.p1.transform.position.y;
             float p2x = pn.p2.transform.position.x;
             float p2y = pn.p2.transform.position.y;
-            
+
+            /*丸め誤差対策*/
+            if (p1x % 1 >= 0.5)
+            {
+                p1x = (int)p1x+1;
+            }
+            else
+            {
+                p1x = (int)p1x;
+            }
+            if (p1y % 1 >= 0.5)
+            {
+                p1y = (int)p1y + 1;
+            }
+            else
+            {
+                p1y = (int)p1y;
+            }
+            if (p2x % 1 >= 0.5)
+            {
+                p2x = (int)p2x + 1;
+            }
+            else
+            {
+                p2x = (int)p2x;
+            }
+            if (p2y % 1 >= 5)
+            {
+                p2y = (int)p2y + 1;
+            }
+            else
+            {
+                p2y = (int)p2y;
+            }
+
             float dx = 0, dy = 0;
             if (Input.GetKeyDown(KeyCode.LeftArrow)) dx = -1.0f;
             if (Input.GetKeyDown(KeyCode.RightArrow)) dx = 1.0f;
             if (Input.GetKeyDown(KeyCode.UpArrow)) dy = 1.0f;
             if (Input.GetKeyDown(KeyCode.DownArrow)) dy = -1.0f;
-            Debug.Log((int)(p2y + dy) + " " + (int)(p1y + dy));
+           // Debug.Log((int)(p2y + dy) + " " + (int)(p1y + dy));
+           // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
+           // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
+            //Debug.Log("y:" + (int)(p2y) + " " + (int)(p1y));
             if (p1y + dy >= maxY || p2y + dy >= maxY) dy = 0;
-            if ((p1x > 0 && p1x < maxX) && (p1y > 0 && p1y < maxY) && (p2x > 0 && p2x < maxX) && (p2y > 0 && p2y < maxY)
-            && (mapGenerateScript.getMap((int)(p1y + dy), (int)(p1x + dx))) == 0 && (mapGenerateScript.getMap((int)(p2y + dy), (int)(p2x + dx))) == 0)
+            if ((mapGenerateScript.getMap((int)(p1y + dy), (int)(p1x + dx))) == 0 && (mapGenerateScript.getMap((int)(p2y + dy), (int)(p2x + dx))) == 0)
             {
                 pn.p1.transform.Translate(dx, dy, 0, Space.World);
             }
@@ -217,15 +253,47 @@ public class puyoGenerate : MonoBehaviour
 
 
             //右回転
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Z))
             {
-                pn.p1.transform.Rotate(0, 0, -90.0f);
+                //  pn.p1.transform.Rotate(0, 0, -90.0f);
+
+                Quaternion quaternion = pn.p1.transform.rotation;
+                float z = quaternion.eulerAngles.z;
+                Debug.Log((int)p1y + " " + (int)(p1x - 1));
+                Debug.Log((int)p1y + " " + (int)(p1y - 1));
+                Debug.Log((int)p1y + " " + (int)(p1x + 1));
+                if ((z == 0.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x - 1)) != 0) ) ||
+                    (z == 90.0f && (p1y - 1) <= 0) ||
+                    (z == 180.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x + 1)) != 0)) ||
+                    (z == 270.0f && (p1y + 1) >= maxY))
+                {
+                }
+                else
+                {
+                    Debug.Log("bb");
+                    Debug.Log(quaternion);
+                    Debug.Log(quaternion.eulerAngles.z);
+                    pn.p1.transform.Rotate(0, 0, -90.0f);
+                }
             }
 
             //左回転
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(KeyCode.X))
             {
-                pn.p1.transform.Rotate(0, 0, 90.0f);
+                Quaternion quaternion = pn.p1.transform.rotation;
+                float z = quaternion.eulerAngles.z;
+                if ((z == 0.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x + 1)) != 0)) ||
+                    (z == 90.0f && (p1y + 1) >= maxY) ||
+                    (z == 180.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x - 1)) != 0)) ||
+                    (z == 270.0f && (p1y - 1) <= 0))
+                {
+                }
+                else
+                {
+                    Debug.Log(quaternion);
+                    Debug.Log(quaternion.eulerAngles.z);
+                    pn.p1.transform.Rotate(0, 0,90.0f);
+                }
             }
         }
     }

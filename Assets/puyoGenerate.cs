@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 public class puyoGenerate : MonoBehaviour
 {
@@ -25,170 +26,114 @@ public class puyoGenerate : MonoBehaviour
     [SerializeField] private GameObject yellow;
     [SerializeField] private GameObject purple;
 
-    GameObject mapGenerater; //Unityちゃんそのものが入る変数
+    GameObject mapGenerater; 
     mapGenerate mapGenerateScript;
 
     enum Puyo : int
     {
-        red = 0,
-        blue = 1,
-        green = 2,
-        yellow = 3,
-        purple = 4,
+        red = 1,
+        blue = 2,
+        green = 3,
+        yellow = 4,
+        purple = 5,
     }
-    PuyoCom puyocom = new PuyoCom();
-    PuyoComNow pn = new PuyoComNow();
+    PuyoCom puyocom = new PuyoCom(); //色の管理
+    PuyoComNow pnext = new PuyoComNow();//nextのぷよ
+    PuyoComNow pn = new PuyoComNow(); //操作中のぷよ
 
-    bool isOk = true;
+    bool isOk = false; //true=操作中
+
     // Use this for initialization
     void Start()
     {
         mapGenerater = GameObject.Find("mapGenerater");
         mapGenerateScript = mapGenerater.GetComponent<mapGenerate>();
+        nextGenerate();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
-        if (isOk)
+        if (isOk == true)
         {
-            nextGenerate();
+            Move();
+        }
+        else
+        {
             Operatepuyo();
-            isOk = false;
+            isOk = true;
+            Debug.Log(isOk);
         }
     }
 
+    /*
+     nextにぷよを出現させる関数 
+     */
     void Generate(int p1, int p2)
     {
         switch (p1)
         {
             case (int)Puyo.red:
-                Instantiate(red, new Vector3(11, 12, 0.0f), Quaternion.identity);
+                pnext.p1 = (GameObject)Instantiate(red, new Vector3(11, 12, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.blue:
-                Instantiate(blue, new Vector3(11, 12, 0.0f), Quaternion.identity);
+                pnext.p1 = (GameObject)Instantiate(blue, new Vector3(11, 12, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.green:
-                Instantiate(green, new Vector3(11, 12, 0.0f), Quaternion.identity);
+                pnext.p1 = (GameObject)Instantiate(green, new Vector3(11, 12, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.yellow:
-                Instantiate(yellow, new Vector3(11, 12, 0.0f), Quaternion.identity);
+                pnext.p1 = (GameObject)Instantiate(yellow, new Vector3(11, 12, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.purple:
-                Instantiate(purple, new Vector3(11, 12, 0.0f), Quaternion.identity);
+                pnext.p1 = (GameObject)Instantiate(purple, new Vector3(11, 12, 0.0f), Quaternion.identity);
                 break;
             default: break;
         }
         switch (p2)
         {
             case (int)Puyo.red:
-                Instantiate(red, new Vector3(11, 11, 0.0f), Quaternion.identity);
+                pnext.p2 = (GameObject)Instantiate(red, new Vector3(11, 11, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.blue:
-                Instantiate(blue, new Vector3(11, 11, 0.0f), Quaternion.identity);
+                pnext.p2 = (GameObject)Instantiate(blue, new Vector3(11, 11, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.green:
-                Instantiate(green, new Vector3(11, 11, 0.0f), Quaternion.identity);
+                pnext.p2 = (GameObject)Instantiate(green, new Vector3(11, 11, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.yellow:
-                Instantiate(yellow, new Vector3(11, 11, 0.0f), Quaternion.identity);
+                pnext.p2 = (GameObject)Instantiate(yellow, new Vector3(11, 11, 0.0f), Quaternion.identity);
                 break;
             case (int)Puyo.purple:
-                Instantiate(purple, new Vector3(11, 11, 0.0f), Quaternion.identity);
+                pnext.p2 = (GameObject)Instantiate(purple, new Vector3(11, 11, 0.0f), Quaternion.identity);
                 break;
             default: break;
         }
+        //pnext.p1.tag = "next";
+        //pnext.p2.tag = "next";
     }
-
+    /*
+     nextのところに出現するぷよを乱数で生成する関数
+     */
     void nextGenerate()
     {
-        int p = r.Next(4);
-        switch (p)
-        {
-            case (int)Puyo.red:
-                puyocom.p1 = (int)Puyo.red;
-                break;
-            case (int)Puyo.blue:
-                puyocom.p1 = (int)Puyo.blue;
-                break;
-            case (int)Puyo.green:
-                puyocom.p1 = (int)Puyo.green;
-                break;
-            case (int)Puyo.yellow:
-                puyocom.p1 = (int)Puyo.yellow;
-                break;
-            case (int)Puyo.purple:
-                puyocom.p1 = (int)Puyo.purple;
-                break;
-            default: break;
-        }
-        p = r.Next(4);
-        switch (p)
-        {
-            case (int)Puyo.red:
-                puyocom.p2 = (int)Puyo.red;
-                break;
-            case (int)Puyo.blue:
-                puyocom.p2 = (int)Puyo.blue;
-                break;
-            case (int)Puyo.green:
-                puyocom.p2 = (int)Puyo.green;
-                break;
-            case (int)Puyo.yellow:
-                puyocom.p2 = (int)Puyo.yellow;
-                break;
-            case (int)Puyo.purple:
-                puyocom.p2 = (int)Puyo.purple;
-                break;
-            default: break;
-        }
+        int p = Random.Range(1,5);
+        puyocom.p1 = p;
+        p = Random.Range(1, 5);
+        puyocom.p2 = p;
         Generate(puyocom.p1, puyocom.p2);
     }
 
+    /*
+     nextのところからぷよを引っ張り出してくる関数 
+     */
     void Operatepuyo()
     {
-        switch (puyocom.p1)
-        {
-            case (int)Puyo.red:
-                pn.p1 = (GameObject)Instantiate(red, new Vector3(4, 13, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.blue:
-                pn.p1 = (GameObject)Instantiate(blue, new Vector3(4, 13, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.green:
-                pn.p1 = (GameObject)Instantiate(green, new Vector3(4, 13, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.yellow:
-                pn.p1 = (GameObject)Instantiate(yellow, new Vector3(4, 13, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.purple:
-                pn.p1 = (GameObject)Instantiate(purple, new Vector3(4, 13, 0.0f), Quaternion.identity);
-                break;
-            default: break;
-        }
-        //Instantiate(pn.p1, new Vector3(4, 13, 0.0f), Quaternion.identity);
-        switch (puyocom.p2)
-        {
-            case (int)Puyo.red:
-                pn.p2 = (GameObject)Instantiate(red, new Vector3(4, 12, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.blue:
-                pn.p2 = (GameObject)Instantiate(blue, new Vector3(4, 12, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.green:
-                pn.p2 = (GameObject)Instantiate(green, new Vector3(4, 12, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.yellow:
-                pn.p2 = (GameObject)Instantiate(yellow, new Vector3(4, 12, 0.0f), Quaternion.identity);
-                break;
-            case (int)Puyo.purple:
-                pn.p2 = (GameObject)Instantiate(purple, new Vector3(4, 12, 0.0f), Quaternion.identity);
-                break;
-            default: break;
-        }
+        pn.p1 = (GameObject)Instantiate(pnext.p1, new Vector3(4, 13, 0.0f), Quaternion.identity);
+        pn.p2 = (GameObject)Instantiate(pnext.p2, new Vector3(4, 12, 0.0f), Quaternion.identity);
         pn.p2.transform.parent = pn.p1.transform;
-        //Instantiate(pn.p2, new Vector3(4, 12, 0.0f), Quaternion.identity);
+        Destroy(pnext.p1);
+        Destroy(pnext.p2);
         nextGenerate();
     }
 
@@ -200,54 +145,26 @@ public class puyoGenerate : MonoBehaviour
             float p1y = pn.p1.transform.position.y;
             float p2x = pn.p2.transform.position.x;
             float p2y = pn.p2.transform.position.y;
-
-            /*丸め誤差対策*/
-            if (p1x % 1 >= 0.5)
-            {
-                p1x = (int)p1x+1;
-            }
-            else
-            {
-                p1x = (int)p1x;
-            }
-            if (p1y % 1 >= 0.5)
-            {
-                p1y = (int)p1y + 1;
-            }
-            else
-            {
-                p1y = (int)p1y;
-            }
-            if (p2x % 1 >= 0.5)
-            {
-                p2x = (int)p2x + 1;
-            }
-            else
-            {
-                p2x = (int)p2x;
-            }
-            if (p2y % 1 >= 5)
-            {
-                p2y = (int)p2y + 1;
-            }
-            else
-            {
-                p2y = (int)p2y;
-            }
+            p1x = CalcError(p1x);
+            p1y = CalcError(p1y);
+            p2x = CalcError(p2x);
+            p2y = CalcError(p2y);
 
             float dx = 0, dy = 0;
             if (Input.GetKeyDown(KeyCode.LeftArrow)) dx = -1.0f;
             if (Input.GetKeyDown(KeyCode.RightArrow)) dx = 1.0f;
             if (Input.GetKeyDown(KeyCode.UpArrow)) dy = 1.0f;
             if (Input.GetKeyDown(KeyCode.DownArrow)) dy = -1.0f;
-           // Debug.Log((int)(p2y + dy) + " " + (int)(p1y + dy));
-           // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
-           // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
+            // Debug.Log((int)(p2y + dy) + " " + (int)(p1y + dy));
+            // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
+            // Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
             //Debug.Log("y:" + (int)(p2y) + " " + (int)(p1y));
             if (p1y + dy >= maxY || p2y + dy >= maxY) dy = 0;
             if ((mapGenerateScript.getMap((int)(p1y + dy), (int)(p1x + dx))) == 0 && (mapGenerateScript.getMap((int)(p2y + dy), (int)(p2x + dx))) == 0)
             {
                 pn.p1.transform.Translate(dx, dy, 0, Space.World);
+                Debug.Log("x:" + (int)(p2x) + " " + (int)(p1x));
+                Debug.Log("y:" + (int)(p2y) + " " + (int)(p1y));
             }
 
 
@@ -262,7 +179,7 @@ public class puyoGenerate : MonoBehaviour
                 Debug.Log((int)p1y + " " + (int)(p1x - 1));
                 Debug.Log((int)p1y + " " + (int)(p1y - 1));
                 Debug.Log((int)p1y + " " + (int)(p1x + 1));
-                if ((z == 0.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x - 1)) != 0) ) ||
+                if ((z == 0.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x - 1)) != 0)) ||
                     (z == 90.0f && (p1y - 1) <= 0) ||
                     (z == 180.0f && (mapGenerateScript.getMap((int)p1y, (int)(p1x + 1)) != 0)) ||
                     (z == 270.0f && (p1y + 1) >= maxY))
@@ -270,9 +187,9 @@ public class puyoGenerate : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("bb");
-                    Debug.Log(quaternion);
-                    Debug.Log(quaternion.eulerAngles.z);
+                    //Debug.Log("bb");
+                    //Debug.Log(quaternion);
+                    //Debug.Log(quaternion.eulerAngles.z);
                     pn.p1.transform.Rotate(0, 0, -90.0f);
                 }
             }
@@ -290,12 +207,140 @@ public class puyoGenerate : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log(quaternion);
-                    Debug.Log(quaternion.eulerAngles.z);
-                    pn.p1.transform.Rotate(0, 0,90.0f);
+                    //Debug.Log(quaternion);
+                    //Debug.Log(quaternion.eulerAngles.z);
+                    pn.p1.transform.Rotate(0, 0, 90.0f);
+                }
+            }
+            Decision();
+        }
+    }
+
+
+    IEnumerator Example()
+    {
+        Debug.Log(Time.time);
+        yield return new WaitForSeconds(2.0f);
+        pn.p1.transform.Translate(0, -1, 0, Space.World);
+        Debug.Log(Time.time);
+    }
+
+    //置き場所を決めたときに発動する関数
+    void Decision()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            bool flag = true;
+            FreeFall(flag);
+            isOk = false;
+        }
+    }
+
+    //ぷよの自由落下関数
+    void FreeFall(bool f)
+    {
+        float p1x = pn.p1.transform.position.x;
+        float p1y = pn.p1.transform.position.y;
+        float p2x = pn.p2.transform.position.x;
+        float p2y = pn.p2.transform.position.y;
+        int ip1x = CalcError(p1x);
+        int ip1y = CalcError(p1y);
+        int ip2x = CalcError(p2x);
+        int ip2y = CalcError(p2y);
+        const int dy = -1;
+        while (mapGenerateScript.getMap(ip1y+dy,ip1x)==0 && mapGenerateScript.getMap(ip2y + dy, ip2x) == 0)
+        {
+            //StartCoroutine(Example());
+            //Example();
+            pn.p1.transform.Translate(0, dy, 0, Space.World);
+            ip1y--;
+            ip2y--;
+        }
+        pn.p2.transform.parent = null;
+        Vector3 p1pos = pn.p1.transform.position;
+        Vector3 p2pos = pn.p2.transform.position;
+        while (mapGenerateScript.getMap(ip1y + dy, ip1x) == 0 && (p1pos.y + dy != p2pos.y))
+        {
+            //StartCoroutine(Example());
+            //Example();
+            pn.p1.transform.Translate(0, dy, 0, Space.World);
+            ip1y--;
+        }
+        p1x = pn.p1.transform.position.x;
+        p1y = pn.p1.transform.position.y;
+        ip1x = CalcError(p1x);
+        ip1y = CalcError(p1y);
+        mapGenerateScript.setMap(ip1y, ip1x, puyocom.p1);
+        Debug.Log("aaa:"+ ip1y);
+        while (mapGenerateScript.getMap(ip2y + dy, ip2x) == 0 && (p2pos.y + dy != p1pos.y))
+        {
+            //StartCoroutine(Example());
+            //Example();
+            pn.p2.transform.Translate(0, dy, 0, Space.World);
+            ip2y--;
+        }
+        Debug.Log("aasa:" + ip2y);
+
+        p2x = pn.p2.transform.position.x;
+        p2y = pn.p2.transform.position.y;
+        ip2x = CalcError(p2x);
+        ip2y = CalcError(p2y);
+        mapGenerateScript.setMap(ip2y, ip2x, puyocom.p2);
+        for(int i = 0;i<maxY; i++)
+        {
+            for(int j = 0;j<maxX; j++)
+            {
+                Debug.Log(mapGenerateScript.getMap(i,j) + " ");
+            }
+            Debug.Log("\n");
+        }
+    }
+
+    void Erase()
+    {
+        for(int i = 0; i < maxY; i++)
+        {
+            for(int j = 0; j< maxX; j++)
+            {
+                int c = mapGenerateScript.getMap(i, j);
+                if (CountSamecolor(i,j,1,c) >= 4)
+                {
+
                 }
             }
         }
+    }
+
+    int CountSamecolor(int y,int x,int cnt,int color)
+    {
+        int _color = mapGenerateScript.getMap(y,x);
+        if (_color == color)
+        {
+            CountSamecolor(y + 1, x, cnt + 1, color);
+            CountSamecolor(y - 1, x, cnt + 1, color);
+            CountSamecolor(y, x + 1, cnt + 1, color);
+            CountSamecolor(y, x - 1, cnt + 1, color);
+        }
+        else
+        {
+            return cnt;
+        }
+        return 0;
+    }
+
+    //丸め誤差対策関数
+    int CalcError(float a)
+    {
+        int res = 0;
+        if ((a % 1) >= 0.5)
+        {
+            res = (int)a + 1;
+        }
+        else
+        {
+            res = (int)a;
+        }
+        return res;
     }
 }
 

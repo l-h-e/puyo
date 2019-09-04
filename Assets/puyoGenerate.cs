@@ -42,6 +42,7 @@ public class puyoGenerate : MonoBehaviour
     PuyoComNow pn = new PuyoComNow(); //操作中のぷよ
 
     bool isOk = false; //true=操作中
+    bool isFall = false; //自由落下中かどうか
 
     // Use this for initialization
     void Start()
@@ -216,29 +217,22 @@ public class puyoGenerate : MonoBehaviour
         }
     }
 
-
-    IEnumerator Example()
-    {
-        Debug.Log(Time.time);
-        yield return new WaitForSeconds(2.0f);
-        pn.p1.transform.Translate(0, -1, 0, Space.World);
-        Debug.Log(Time.time);
-    }
-
     //置き場所を決めたときに発動する関数
     void Decision()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            bool flag = true;
-            FreeFall(flag);
-            isOk = false;
+            if (!isFall) //既に落下中でなければ自由落下。落下中に落下させるとバグる
+            {
+                StartCoroutine(FreeFall());
+            }
         }
     }
 
     //ぷよの自由落下関数
-    void FreeFall(bool f)
+    IEnumerator FreeFall()
     {
+        isFall = true;
         float p1x = pn.p1.transform.position.x;
         float p1y = pn.p1.transform.position.y;
         float p2x = pn.p2.transform.position.x;
@@ -252,6 +246,7 @@ public class puyoGenerate : MonoBehaviour
         {
             //StartCoroutine(Example());
             //Example();
+            yield return new WaitForSeconds(0.1f);
             pn.p1.transform.Translate(0, dy, 0, Space.World);
             ip1y--;
             ip2y--;
@@ -263,9 +258,11 @@ public class puyoGenerate : MonoBehaviour
         {
             //StartCoroutine(Example());
             //Example();
+            yield return new WaitForSeconds(0.1f);
             pn.p1.transform.Translate(0, dy, 0, Space.World);
             ip1y--;
         }
+        yield return new WaitForSeconds(0.1f);
         p1x = pn.p1.transform.position.x;
         p1y = pn.p1.transform.position.y;
         ip1x = CalcError(p1x);
@@ -276,6 +273,7 @@ public class puyoGenerate : MonoBehaviour
         {
             //StartCoroutine(Example());
             //Example();
+            yield return new WaitForSeconds(0.05f);
             pn.p2.transform.Translate(0, dy, 0, Space.World);
             ip2y--;
         }
@@ -294,6 +292,9 @@ public class puyoGenerate : MonoBehaviour
             }
             Debug.Log("\n");
         }
+        yield return new WaitForSeconds(0.1f);
+        isOk = false;
+        isFall = false;
     }
 
     void Erase()
@@ -303,6 +304,7 @@ public class puyoGenerate : MonoBehaviour
             for(int j = 0; j< maxX; j++)
             {
                 int c = mapGenerateScript.getMap(i, j);
+               // Tuple<string, int> t = new Tuple<string, int>("Hello", 4);
                 if (CountSamecolor(i,j,1,c) >= 4)
                 {
 

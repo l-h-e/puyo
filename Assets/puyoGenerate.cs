@@ -17,6 +17,12 @@ public class puyoGenerate : MonoBehaviour
         public GameObject p2;
 
     }
+   struct pair
+    {
+        public int first;
+        public int second;
+    }
+
     System.Random r = new System.Random(1000);
     const int maxX = 8;
     const int maxY = 14;
@@ -28,6 +34,12 @@ public class puyoGenerate : MonoBehaviour
 
     GameObject mapGenerater; 
     mapGenerate mapGenerateScript;
+
+    string rp = "red(Clone)(Clone)";
+    string bp = "blue(Clone)(Clone)";
+    string gp = "green(Clone)(Clone)";
+    string yp = "yellow(Clone)(Clone)";
+    string pp = "purple(Clone)(Clone)";
 
     enum Puyo : int
     {
@@ -62,6 +74,7 @@ public class puyoGenerate : MonoBehaviour
         else
         {
             Operatepuyo();
+//            Erase();
             isOk = true;
             Debug.Log(isOk);
         }
@@ -119,8 +132,10 @@ public class puyoGenerate : MonoBehaviour
     void nextGenerate()
     {
         int p = Random.Range(1,5);
+        p = 1;
         puyocom.p1 = p;
         p = Random.Range(1, 5);
+        p = 2;
         puyocom.p2 = p;
         Generate(puyocom.p1, puyocom.p2);
     }
@@ -140,7 +155,7 @@ public class puyoGenerate : MonoBehaviour
 
     void Move()
     {
-        if (pn.p1)
+        if (pn.p1 && pn.p2)
         {
             float p1x = pn.p1.transform.position.x;
             float p1y = pn.p1.transform.position.y;
@@ -224,13 +239,13 @@ public class puyoGenerate : MonoBehaviour
         {
             if (!isFall) //既に落下中でなければ自由落下。落下中に落下させるとバグる
             {
-                StartCoroutine(FreeFall());
+                StartCoroutine(Fall());
             }
         }
     }
 
     //ぷよの自由落下関数
-    IEnumerator FreeFall()
+    IEnumerator Fall()
     {
         isFall = true;
         float p1x = pn.p1.transform.position.x;
@@ -263,12 +278,12 @@ public class puyoGenerate : MonoBehaviour
             ip1y--;
         }
         yield return new WaitForSeconds(0.1f);
-        p1x = pn.p1.transform.position.x;
-        p1y = pn.p1.transform.position.y;
-        ip1x = CalcError(p1x);
-        ip1y = CalcError(p1y);
+        //p1x = pn.p1.transform.position.x;
+        //p1y = pn.p1.transform.position.y;
+        //ip1x = CalcError(p1x);
+        //ip1y = CalcError(p1y);
         mapGenerateScript.setMap(ip1y, ip1x, puyocom.p1);
-        Debug.Log("aaa:"+ ip1y);
+        Debug.Log("p1の色は:"+ puyocom.p1);
         while (mapGenerateScript.getMap(ip2y + dy, ip2x) == 0 && (p2pos.y + dy != p1pos.y))
         {
             //StartCoroutine(Example());
@@ -277,12 +292,12 @@ public class puyoGenerate : MonoBehaviour
             pn.p2.transform.Translate(0, dy, 0, Space.World);
             ip2y--;
         }
-        Debug.Log("aasa:" + ip2y);
+        Debug.Log("p2の色は:" + puyocom.p2);
 
-        p2x = pn.p2.transform.position.x;
-        p2y = pn.p2.transform.position.y;
-        ip2x = CalcError(p2x);
-        ip2y = CalcError(p2y);
+        //p2x = pn.p2.transform.position.x;
+        //p2y = pn.p2.transform.position.y;
+        //ip2x = CalcError(p2x);
+        //ip2y = CalcError(p2y);
         mapGenerateScript.setMap(ip2y, ip2x, puyocom.p2);
         for(int i = 0;i<maxY; i++)
         {
@@ -293,41 +308,160 @@ public class puyoGenerate : MonoBehaviour
             Debug.Log("\n");
         }
         yield return new WaitForSeconds(0.1f);
-        isOk = false;
+        // isOk = false;
+        //        StartCoroutine(Erase());
+        Erase();
         isFall = false;
     }
-
-    void Erase()
+    bool Erase()
     {
-        for(int i = 0; i < maxY; i++)
+        bool a = true;
+        for (int i = 1; i < maxY - 1; i++)
         {
-            for(int j = 0; j< maxX; j++)
+            for (int j = 1; j < maxX - 1; j++)
             {
                 int c = mapGenerateScript.getMap(i, j);
-               // Tuple<string, int> t = new Tuple<string, int>("Hello", 4);
-                if (CountSamecolor(i,j,1,c) >= 4)
+                // Tuple<string, int> t = new Tuple<string, int>("Hello", 4);
+                if (c != 0 && c != -1)
                 {
-
+                    if (SamecolorErase(i, j, c))
+                    {
+                        a = false;
+                        StartCoroutine(FreeFall());
+                        return true;
+                        Debug.Log("aa:" + c);
+                        //yield return new WaitForSeconds(0.2f);
+                    }
                 }
             }
         }
+               isOk = false;
+        return false;
+        //if (a)
+        //{
+        //    isOk = false;
+        //    return false;
+        //}
+        //return true;
+    }
+    bool SamecolorErase(int y, int x, int color)
+    {
+        Queue<int> qy = new Queue<int>();
+        Queue<int> qx = new Queue<int>();
+        int[] dx = new int[4] { 0 , 1 , 0 , -1 };
+        int[] dy = new int[4] { 1 , 0 , -1 , 0 };
+        qy.Enqueue(y);
+        qx.Enqueue(x);
+        int cnt = 0;
+        int[,] qm = new int[maxY, maxX];
+
+        for (int i = 0; i < maxY; i++)
+        {
+            for(int j = 0; j < maxX; j++)
+            {
+                if (mapGenerateScript.getMap(i, j) == color) qm[i, j] = (int)1e5;
+                //else if (mapGenerateScript.getMap(i, j) == color) qm[i, j] = 1;
+                else qm[i, j] = -1;
+                //qm[i, j] = (int)1e5;
+            }
+        }
+        while (qy.Count>0)
+        {
+            pair p = new pair();
+            p.first = qy.Peek();
+            p.second = qx.Peek();
+            qy.Dequeue(); qx.Dequeue();
+            for (int i = 0; i < 4; i++)
+            {
+                int ny = p.first + dy[i], nx = p.second + dx[i];
+                // int _color = mapGenerateScript.getMap(ny, nx);
+                
+                if (nx >= 0 && nx < maxX && 0 <= ny && ny < maxY && mapGenerateScript.getMap(ny, nx) == color && qm[ny, nx] == 1e5)
+                {
+                    Debug.Log("x,y" + x + " " + y);
+                    qy.Enqueue(ny); qx.Enqueue(nx);
+                    qm[ny, nx] = 0;
+                    cnt++;
+                }
+            }
+        }
+
+        if (cnt >= 4)
+        {
+            foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
+            {
+                // シーン上に存在するオブジェクトならば処理.
+                if (obj.activeInHierarchy)
+                {
+                    Debug.Log(obj.name);
+                    string eraseObject = "";
+                    switch (color)
+                    {
+                        case (int)Puyo.red:
+                            eraseObject = rp;
+                            break;
+                        case (int)Puyo.blue:
+                            eraseObject = bp;
+                            break;
+                        case (int)Puyo.green:
+                            eraseObject = gp;
+                            break;
+                        case (int)Puyo.yellow:
+                            eraseObject = yp;
+                            break;
+                        case (int)Puyo.purple:
+                            eraseObject = pp;
+                            break;
+                        default: break;
+                    }
+
+                    // GameObjectの名前を表示.
+                    if (obj.name == eraseObject)
+                    {
+                        int xx = CalcError(obj.transform.position.x);
+                        int yy = CalcError(obj.transform.position.y);
+                        Debug.Log("yy,xx,qm" + yy + " " + xx + " " + qm[yy, xx]);
+                        //if (qm[yy, xx] == 0) obj.tag = "erase";
+                        if (qm[yy, xx] == 0)
+                        {
+                            Destroy(obj);
+                            mapGenerateScript.setMap(yy, xx, 0);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
-    int CountSamecolor(int y,int x,int cnt,int color)
+    IEnumerator FreeFall()
     {
-        int _color = mapGenerateScript.getMap(y,x);
-        if (_color == color)
+        foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
         {
-            CountSamecolor(y + 1, x, cnt + 1, color);
-            CountSamecolor(y - 1, x, cnt + 1, color);
-            CountSamecolor(y, x + 1, cnt + 1, color);
-            CountSamecolor(y, x - 1, cnt + 1, color);
+            //if (obj == (pn.p1 || pn.p2)) continue;
+            if (!obj) continue;
+            if (obj.name == rp || obj.name == bp || obj.name == gp || obj.name == yp || obj.name == pp)
+            {
+                int xx = CalcError(obj.transform.position.x);
+                int yy = CalcError(obj.transform.position.y);
+                int _color = mapGenerateScript.getMap(yy, xx);
+                while (mapGenerateScript.getMap(yy - 1, xx) == 0)
+                {
+                    if (yy -1 != 0)
+                    {
+                        mapGenerateScript.setMap(yy, xx, 0);
+                        yy--;
+                        obj.transform.Translate(0, -1, 0, Space.World);
+                        yield return new WaitForSeconds(0.1f);
+                        mapGenerateScript.setMap(yy , xx, _color);
+                    }
+                }
+            }
         }
-        else
-        {
-            return cnt;
-        }
-        return 0;
+        //StartCoroutine(Erase());
+        //if (Erase()) isOk = false;
+        Erase();
     }
 
     //丸め誤差対策関数

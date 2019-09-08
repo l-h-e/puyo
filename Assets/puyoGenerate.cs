@@ -69,7 +69,7 @@ public class puyoGenerate : MonoBehaviour
     {
         if (isOk == true)
         {
-            Move();
+            if(!isFall)Move();
         }
         else
         {

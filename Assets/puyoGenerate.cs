@@ -437,7 +437,38 @@ public class puyoGenerate : MonoBehaviour
 
     IEnumerator FreeFall()
     {
+        GameObject[] objbuf = new GameObject[100];
+        int i = 0;
         foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
+        {
+            if (obj.name == rp || obj.name == bp || obj.name == gp || obj.name == yp || obj.name == pp)
+            {
+                objbuf[i] = obj;
+                i++;
+            }
+        }
+
+        for(int j = 0; j < i; j++)
+        {
+            for(int k = 0; k < i; k++)
+            {
+                float a = objbuf[j].transform.position.y;
+                float b = objbuf[k].transform.position.y;
+                if (a < b)
+                {
+                    GameObject tmp = objbuf[j];
+                    objbuf[j] = objbuf[k];
+                    objbuf[k] = tmp;
+                }
+            }
+        }
+        foreach (GameObject obj in objbuf)
+        {
+            if (!obj) break;
+            Debug.Log("obj:"+obj+" y:" + obj.transform.position.y);
+        }
+
+        foreach (GameObject obj in objbuf)
         {
             //if (obj == (pn.p1 || pn.p2)) continue;
             if (!obj) continue;

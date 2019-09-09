@@ -1,0 +1,11 @@
+todo
+  puyoクラス作ってfreefallあたりの処理をpuyoクラスに移行
+  
+
+memo
+  puyoクラス内のupdateで毎秒落とせばぷよ浮いちゃう問題解決しそう
+  丸め誤差対策あたりの関数群は別にシステムクラス作ってしまってもよさそう
+  eraseの処理もpuyoクラスに移行できるか検討する（自分の座標始点でBFSしたら良いだけだけど、クラス分けるとEraseの実行タイミングが難しそう。自分だけ消えてしまいそう）
+  ヒエラルキーを座標でソートしたらいけるのでは？
+  全件取得したオブジェクトをいったん配列に入れて、そのあと座標でソートしたら良さそう
+https://search.yahoo.co.jp/amp/s/mushikago.com/i/%3Fp%3D8027%26amp%3D1%26usqp%3Dmq331AQPKAFwAZgB8YTShIOlzZA8

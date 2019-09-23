@@ -94,4 +94,8 @@ public class mapGenerate : MonoBehaviour {
     {
         return m[y,x];
     }
+    public void setMap(int y, int x , int c)
+    {
+        m[y, x] = c;
+    }
 }
